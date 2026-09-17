@@ -1,0 +1,33 @@
+{
+  "name": "opencode-mcp-toggle",
+  "version": "1.0.0",
+  "description": "Manage and toggle OpenCode MCP servers on the fly directly from Paseo to save context tokens.",
+  "keywords": [
+    "paseo",
+    "paseo-plugin",
+    "opencode",
+    "mcp",
+    "token-optimization"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Davnn1/opencode-mcp-toggle.git"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@getpaseo/plugin": "0.8.0",
+    "@tanstack/react-query": "^5.90.11",
+    "@types/node": "^20.19.43",
+    "@types/react": "~19.2.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "typescript": "^5.9.3",
+    "zod": "^4.4.3"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1"
+  }
+}
