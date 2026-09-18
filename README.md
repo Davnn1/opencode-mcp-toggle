@@ -69,10 +69,28 @@ paseo plugin ls
 
 1. Open any **OpenCode agent session** in Paseo (desktop or mobile).
 2. Look at the composer bar at the bottom: an **`[ • MCP ]`** pill will appear.
+
+<p align="center">
+  <img src="images/composer-pill.png" alt="OpenCode Composer MCP Pill" width="600" />
+</p>
+
 3. Tap the pill to open the server manager:
+
+<p align="center">
+  <img src="images/mcp-manager.png" alt="MCP Servers Manager Popover" width="360" />
+</p>
+
    - **Flip the switch**: Instantly disconnects or reconnects the MCP server for the running session.
    - **Save as default**: When checked, your choices are automatically saved to your workspace or global `opencode.json(c)`.
    - If a server is toggled only for the current session without saving, it will be clearly marked with a `session only` badge.
+
+### Mobile Experience
+
+On mobile devices, the manager seamlessly adapts into a native bottom sheet:
+
+<p align="center">
+  <img src="images/mobile-sheet.jpeg" alt="Mobile Bottom Sheet" width="300" />
+</p>
 
 ---
 
