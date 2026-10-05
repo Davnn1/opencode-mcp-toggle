@@ -8,12 +8,17 @@ import type { McpServer } from "../shared/mcp";
 
 const execFileAsync = promisify(execFile);
 const REQUEST_TIMEOUT_MS = 2500;
+const ACTION_TIMEOUT_MS = 60000;
 
 type McpStatusMap = Record<string, { status?: string }>;
 
-async function fetchJson(url: string, init?: RequestInit): Promise<unknown> {
+async function fetchJson(
+  url: string,
+  init?: RequestInit,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<unknown> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, { ...init, signal: controller.signal });
     if (!response.ok) {
@@ -146,10 +151,18 @@ export async function setServer(
     throw new Error("No reachable opencode serve instance found for this agent");
   }
   const action = enable ? "connect" : "disconnect";
-  await fetchJson(
-    `http://127.0.0.1:${found.port}/mcp/${encodeURIComponent(name)}/${action}${statusQuery(directory)}`,
-    { method: "POST", headers: { "content-type": "application/json" }, body: "{}" },
-  );
+  try {
+    await fetchJson(
+      `http://127.0.0.1:${found.port}/mcp/${encodeURIComponent(name)}/${action}${statusQuery(directory)}`,
+      { method: "POST", headers: { "content-type": "application/json" }, body: "{}" },
+      ACTION_TIMEOUT_MS,
+    );
+  } catch (err) {
+    if ((err as { name?: string })?.name === "AbortError") {
+      throw new Error(`MCP ${action} for "${name}" timed out after ${ACTION_TIMEOUT_MS / 1000}s`);
+    }
+    throw err;
+  }
   return listServers(directory);
 }
 
