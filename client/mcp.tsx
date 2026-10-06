@@ -172,7 +172,7 @@ function ServerRow({
               }}
             >
               <Text style={{ color: theme.foregroundMuted, fontSize: 10 }}>
-                session only
+                runtime only — workspace scope
               </Text>
             </View>
           ) : null}

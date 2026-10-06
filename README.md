@@ -24,7 +24,7 @@ While OpenCode's native terminal UI provides `/mcps` to enable/disable servers d
 - ⚡ **1-Click Dynamic Toggling**: Enable or disable any MCP server in real time via OpenCode's internal server API. Disabling a server instantly purges its tool schemas from subsequent prompt requests.
 - 💾 **Auto-Save as Default (`opencode.json`)**:
   - Keep **"Save as default"** checked (default) to persist the toggle state across restarts.
-  - Uncheck it to toggle servers temporarily for the current session only.
+  - Uncheck it to toggle servers at runtime only — the state lives on this workspace's directory scope in `opencode serve` (shared by every agent with the same working directory) and is never written to config.
 - 📱 **Mobile & Desktop First**:
   - **Desktop**: Compact, anchored inspector popover directly above the composer.
   - **Mobile**: Native adaptive bottom sheet with gesture support.
@@ -80,9 +80,9 @@ paseo plugin ls
   <img src="images/mcp-manager.png" alt="MCP Servers Manager Popover" width="360" />
 </p>
 
-   - **Flip the switch**: Instantly disconnects or reconnects the MCP server for the running session.
+   - **Flip the switch**: Instantly disconnects or reconnects the MCP server for this workspace's runtime scope (shared across all agents with the same working directory).
    - **Save as default**: When checked, your choices are automatically saved to your workspace or global `opencode.json(c)`.
-   - If a server is toggled only for the current session without saving, it will be clearly marked with a `session only` badge.
+   - If a server's runtime state differs from the saved config, it is marked with a `runtime only — workspace scope` badge.
 
 ### Mobile Experience
 
