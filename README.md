@@ -24,7 +24,7 @@ While OpenCode's native terminal UI provides `/mcps` to enable/disable servers d
 - ⚡ **1-Click Dynamic Toggling**: Enable or disable any MCP server in real time via OpenCode's internal server API. Disabling a server instantly purges its tool schemas from subsequent prompt requests.
 - 💾 **Auto-Save as Default (`opencode.json`)**:
   - Keep **"Save as default"** checked (default) to persist the toggle state across restarts.
-  - Uncheck it to toggle servers at runtime only — the state lives on this workspace's directory scope in `opencode serve` (shared by every agent with the same working directory) and is never written to config.
+  - Uncheck it to toggle servers temporarily for the current session only.
 - 📱 **Mobile & Desktop First**:
   - **Desktop**: Compact, anchored inspector popover directly above the composer.
   - **Mobile**: Native adaptive bottom sheet with gesture support.
@@ -32,7 +32,8 @@ While OpenCode's native terminal UI provides `/mcps` to enable/disable servers d
   - Resolves target working directories server-side using trusted daemon agent state (prevents path traversal / CWE-22).
   - No secrets or credentials ever cross the client RPC boundary.
 - 🚀 **Zero Configuration**:
-  - Automatically discovers running `opencode serve` daemon instances and their ports.
+  - Automatically discovers running `opencode serve` daemon instances and their ports, including v2 ephemeral ports.
+  - Works on both OpenCode v1 (`/mcp`, `mcp.*.enabled`) and v2 (`/api/mcp`, `mcp.servers.*.disabled`, Basic auth).
   - Automatically activates in the composer bar only when interacting with OpenCode agents.
 
 ---
@@ -80,9 +81,9 @@ paseo plugin ls
   <img src="images/mcp-manager.png" alt="MCP Servers Manager Popover" width="360" />
 </p>
 
-   - **Flip the switch**: Instantly disconnects or reconnects the MCP server for this workspace's runtime scope (shared across all agents with the same working directory).
+   - **Flip the switch**: Instantly disconnects or reconnects the MCP server for the running session.
    - **Save as default**: When checked, your choices are automatically saved to your workspace or global `opencode.json(c)`.
-   - If a server's runtime state differs from the saved config, it is marked with a `runtime only — workspace scope` badge.
+   - If a server is toggled only for the current session without saving, it will be clearly marked with a `session only` badge.
 
 ### Mobile Experience
 
@@ -96,8 +97,10 @@ On mobile devices, the manager seamlessly adapts into a native bottom sheet:
 
 ## How It Works
 
-1. **Daemon Service**: Scans active `opencode serve` instances and connects to their local HTTP management endpoints (`GET /mcp`, `POST /mcp/{name}/connect|disconnect`).
-2. **Persistence**: Parses and applies surgical edits to `opencode.json` / `opencode.jsonc` using `jsonc-parser`, preserving comments and formatting.
+1. **Daemon Service**: Scans running `opencode serve` processes (Linux `/proc` socket lookup, `pgrep` fallback on other hosts) and talks to whichever instance owns the agent's session:
+   - OpenCode v2: `GET /api/mcp`, `POST /api/experimental/mcp/{name}/connect|disconnect`, Basic auth from the process's `OPENCODE_PASSWORD` (needed because Paseo v2 spawns `opencode serve --port 0` on an ephemeral port).
+   - OpenCode v1: `GET /mcp`, `POST /mcp/{name}/connect|disconnect`, no auth.
+2. **Persistence**: Parses and applies surgical edits to `opencode.json` / `opencode.jsonc` using `jsonc-parser`, preserving comments and formatting. v1 writes `mcp.<name>.enabled`; v2 writes the inverted `mcp.servers.<name>.disabled` flag.
 3. **Client UI**: Built using React Native and Paseo's `@getpaseo/plugin` design primitives, automatically adjusting between desktop popovers and mobile bottom sheets.
 
 ---

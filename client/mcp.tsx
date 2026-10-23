@@ -38,7 +38,10 @@ function statusColor(
     case "connected":
       return theme.statusSuccess;
     case "connecting":
+    case "pending":
+    case "starting":
     case "reconnecting":
+    case "needs_auth":
       return theme.statusWarning;
     case "failed":
     case "error":
@@ -121,7 +124,11 @@ function ServerRow({
       rpcSet({ agentId: agentId ?? "", name: server.name, ...input }),
     onSuccess: onToggled,
   });
-  const runtimeOn = server.status === "connected" || server.status === "connecting";
+  const runtimeOn =
+    server.status === "connected" ||
+    server.status === "connecting" ||
+    server.status === "pending" ||
+    server.status === "starting";
   const isSessionOverride =
     server.configEnabled !== null && runtimeOn !== server.configEnabled;
 
@@ -172,12 +179,15 @@ function ServerRow({
               }}
             >
               <Text style={{ color: theme.foregroundMuted, fontSize: 10 }}>
-                runtime only — workspace scope
+                session only
               </Text>
             </View>
           ) : null}
 
           {server.status === "connecting" ||
+          server.status === "pending" ||
+          server.status === "starting" ||
+          server.status === "needs_auth" ||
           server.status === "failed" ||
           server.status === "error" ? (
             <Text style={{ color: statusColor(server.status, theme), fontSize: 10 }}>
@@ -205,6 +215,13 @@ function ServerRow({
         >
           {mutation.error instanceof Error ? mutation.error.message : "Action failed"}
         </Text>
+      ) : server.error ? (
+        <Text
+          style={{ color: theme.statusDanger, fontSize: 11, paddingHorizontal: 12, paddingBottom: 4 }}
+          numberOfLines={2}
+        >
+          {server.error}
+        </Text>
       ) : null}
     </View>
   );
@@ -221,7 +238,11 @@ export function McpToggleContent(props: PluginButtonContentProps) {
 
   const servers = list.data?.servers ?? [];
   const connected = servers.filter(
-    (server) => server.status === "connected" || server.status === "connecting",
+    (server) =>
+      server.status === "connected" ||
+      server.status === "connecting" ||
+      server.status === "pending" ||
+      server.status === "starting",
   ).length;
 
   return (

@@ -5,7 +5,11 @@ export const mcpServerSchema = z.object({
   name: z.string(),
   /** Runtime status reported by the opencode serve instance. */
   status: z.string(),
-  /** `enabled` flag in the defining opencode.json(c), null when not defined in any known config. */
+  /** Failure detail reported by the serve instance (v2 puts it beside status). */
+  error: z.string().optional(),
+  /** Persisted enable flag from the defining opencode.json(c), null when not
+   *  defined in any known config. v2 stores `disabled` under `mcp.servers`;
+   *  v1 stores `enabled` directly under `mcp`. */
   configEnabled: z.boolean().nullable(),
 });
 
