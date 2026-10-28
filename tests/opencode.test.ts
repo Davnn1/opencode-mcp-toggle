@@ -14,6 +14,7 @@ import {
   writeConfigEnabled,
   type Instance,
 } from "../server/opencode";
+import { isServerEnabled } from "../shared/mcp";
 
 function instance(port: number, password: string | null = "secret"): Instance {
   return {
@@ -251,4 +252,19 @@ test("config: unknown server is reported instead of silently written", () => {
   } finally {
     config.restore();
   }
+});
+
+test("isServerEnabled: only the disabled status means off", () => {
+  for (const status of [
+    "connected",
+    "connecting",
+    "pending",
+    "starting",
+    "failed",
+    "needs_auth",
+    "error",
+  ]) {
+    assert.equal(isServerEnabled({ status }), true, `${status} should read as enabled`);
+  }
+  assert.equal(isServerEnabled({ status: "disabled" }), false);
 });

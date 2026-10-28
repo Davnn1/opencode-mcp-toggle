@@ -45,3 +45,16 @@ export const setMcp = defineRpc({
 });
 
 export type McpServer = z.infer<typeof mcpServerSchema>;
+
+/**
+ * Desired state of a server.
+ *
+ * opencode reports `disabled` only when the server is intentionally off; every
+ * other status (`connected`, `starting`, `failed`, `needs_auth`) means it is
+ * meant to be on. Binding the switch to `connected` made an enabled-but-failing
+ * server impossible to switch on: it read off, and every tap re-enabled a
+ * server that could not connect.
+ */
+export function isServerEnabled(server: Pick<McpServer, "status">): boolean {
+  return server.status !== "disabled";
+}

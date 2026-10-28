@@ -7,7 +7,7 @@ import type {
   PluginButtonIconProps,
 } from "@getpaseo/plugin/client";
 import { useRpc } from "@getpaseo/plugin/client";
-import { listMcp, setMcp, type McpServer } from "../shared/mcp";
+import { isServerEnabled, listMcp, setMcp, type McpServer } from "../shared/mcp";
 
 const POLL_MS = 5000;
 
@@ -124,13 +124,9 @@ function ServerRow({
       rpcSet({ agentId: agentId ?? "", name: server.name, ...input }),
     onSuccess: onToggled,
   });
-  const runtimeOn =
-    server.status === "connected" ||
-    server.status === "connecting" ||
-    server.status === "pending" ||
-    server.status === "starting";
+  const enabled = isServerEnabled(server);
   const isSessionOverride =
-    server.configEnabled !== null && runtimeOn !== server.configEnabled;
+    server.configEnabled !== null && enabled !== server.configEnabled;
 
   return (
     <View style={{ gap: 2 }}>
@@ -155,9 +151,9 @@ function ServerRow({
           />
           <Text
             style={{
-              color: runtimeOn ? theme.foreground : theme.foregroundMuted,
+              color: enabled ? theme.foreground : theme.foregroundMuted,
               fontSize: 13,
-              fontWeight: runtimeOn ? "600" : "400",
+              fontWeight: enabled ? "600" : "400",
               fontFamily: Platform.select({
                 ios: "Menlo",
                 android: "monospace",
@@ -197,7 +193,7 @@ function ServerRow({
         </View>
 
         <ToggleSwitch
-          value={runtimeOn}
+          value={enabled}
           disabled={mutation.isPending}
           onChange={(next) =>
             mutation.mutate({ enable: next, persist: saveToConfig, runtime: true })
@@ -237,13 +233,7 @@ export function McpToggleContent(props: PluginButtonContentProps) {
     queryClient.invalidateQueries({ queryKey: ["opencode-mcp-toggle", "list"] });
 
   const servers = list.data?.servers ?? [];
-  const connected = servers.filter(
-    (server) =>
-      server.status === "connected" ||
-      server.status === "connecting" ||
-      server.status === "pending" ||
-      server.status === "starting",
-  ).length;
+  const enabledCount = servers.filter((server) => isServerEnabled(server)).length;
 
   return (
     <View
@@ -269,7 +259,7 @@ export function McpToggleContent(props: PluginButtonContentProps) {
           <View
             style={{
               backgroundColor:
-                connected > 0 ? theme.colors.accent + "22" : theme.colors.surface2,
+                enabledCount > 0 ? theme.colors.accent + "22" : theme.colors.surface2,
               paddingHorizontal: 6,
               paddingVertical: 1,
               borderRadius: 10,
@@ -277,12 +267,12 @@ export function McpToggleContent(props: PluginButtonContentProps) {
           >
             <Text
               style={{
-                color: connected > 0 ? theme.colors.accent : theme.colors.foregroundMuted,
+                color: enabledCount > 0 ? theme.colors.accent : theme.colors.foregroundMuted,
                 fontSize: 11,
                 fontVariant: ["tabular-nums"],
               }}
             >
-              {`${connected}/${servers.length}`}
+              {`${enabledCount}/${servers.length}`}
             </Text>
           </View>
         </View>
