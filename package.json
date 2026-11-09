@@ -1,7 +1,20 @@
 {
   "name": "opencode-mcp-toggle",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Manage and toggle OpenCode MCP servers on the fly directly from Paseo to save context tokens.",
+  "files": [
+    "client",
+    "images",
+    "server",
+    "shared",
+    "index.client.tsx",
+    "index.server.ts",
+    "package.json",
+    "npm-shrinkwrap.json",
+    "paseo-plugin.json",
+    "LICENSE",
+    "README.md"
+  ],
   "keywords": [
     "paseo",
     "paseo-plugin",

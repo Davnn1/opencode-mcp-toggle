@@ -4,6 +4,6 @@
     "paseo": ">=0.9.0"
   },
   "build": [
-    ["npm", "install", "--omit=dev"]
+    ["npm", "ci", "--ignore-scripts", "--omit=dev"]
   ]
 }
